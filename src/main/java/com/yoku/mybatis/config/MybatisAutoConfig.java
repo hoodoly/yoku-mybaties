@@ -46,11 +46,11 @@ public class MybatisAutoConfig implements TransactionManagementConfigurer {
     public DataSource druidDataSource(){
         DruidDataSource dataSource = new DruidDataSource();
         dataSource.setUsername(mybatiesProperties.getUsername());
-        dataSource.setPassword("anywhere");
-        dataSource.setUrl("jdbc:mysql://localhost:3306/yoku");
-        dataSource.setMaxActive(20);
-        dataSource.setMinIdle(1);
-        dataSource.setInitialSize(5);
+        dataSource.setPassword(mybatiesProperties.getPassword());
+        dataSource.setUrl(mybatiesProperties.getUrl());
+        dataSource.setMaxActive(mybatiesProperties.getMaxActive());
+        dataSource.setMinIdle(mybatiesProperties.getMinIdle());
+        dataSource.setInitialSize(mybatiesProperties.getInitialSize());
         dataSource.setMaxWait(30000);
         dataSource.setTimeBetweenEvictionRunsMillis(60000);
         //一个连接最小生存时间
