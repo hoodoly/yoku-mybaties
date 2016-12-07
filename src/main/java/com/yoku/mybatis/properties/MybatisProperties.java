@@ -12,10 +12,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class MybatisProperties {
     private String username;
     private String password;
-    private String Url;
-    private Integer maxActive;
-    private Integer minIdle;
-    private Integer initialSize;
+    private String url = "jdbc:mysql://127.0.0.1:3306/yoku?useUnicode=true&characterEncoding=UTF8";
+    private Integer maxActive = 20;
+    private Integer minIdle = 1;
+    private Integer initialSize = 5;
 
     public String getUsername() {
         return username;
@@ -34,11 +34,11 @@ public class MybatisProperties {
     }
 
     public String getUrl() {
-        return Url;
+        return url;
     }
 
     public void setUrl(String url) {
-        Url = url;
+        this.url = url;
     }
 
     public Integer getMaxActive() {
