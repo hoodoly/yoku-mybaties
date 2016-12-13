@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnNotWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,11 +32,11 @@ import java.sql.SQLException;
 @Configuration
 @EnableAutoConfiguration
 @EnableConfigurationProperties(MybatisProperties.class)
-@ConditionalOnProperty(prefix = "mybatis", value = "enabled", matchIfMissing = true)
+@ConditionalOnNotWebApplication
 public class MybatisAutoConfig implements TransactionManagementConfigurer {
 
     @Autowired
-    MybatisProperties mybatiesProperties;
+    MybatisProperties mybatisProperties;
 
     @Autowired
     DataSource dataSource;
@@ -45,12 +45,12 @@ public class MybatisAutoConfig implements TransactionManagementConfigurer {
     @ConditionalOnMissingBean
     public DataSource druidDataSource(){
         DruidDataSource dataSource = new DruidDataSource();
-        dataSource.setUsername(mybatiesProperties.getUsername());
-        dataSource.setPassword(mybatiesProperties.getPassword());
-        dataSource.setUrl(mybatiesProperties.getUrl());
-        dataSource.setMaxActive(mybatiesProperties.getMaxActive());
-        dataSource.setMinIdle(mybatiesProperties.getMinIdle());
-        dataSource.setInitialSize(mybatiesProperties.getInitialSize());
+        dataSource.setUsername(mybatisProperties.getUsername());
+        dataSource.setPassword(mybatisProperties.getPassword());
+        dataSource.setUrl(mybatisProperties.getUrl());
+        dataSource.setMaxActive(mybatisProperties.getMaxActive());
+        dataSource.setMinIdle(mybatisProperties.getMinIdle());
+        dataSource.setInitialSize(mybatisProperties.getInitialSize());
         dataSource.setMaxWait(30000);
         dataSource.setTimeBetweenEvictionRunsMillis(60000);
         //一个连接最小生存时间
@@ -76,10 +76,13 @@ public class MybatisAutoConfig implements TransactionManagementConfigurer {
     public SqlSessionFactory sqlSessionFactoryBean(){
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource);
+
+        //配置别名扫描路径, mapper.xml可以直接使用类名用nameSpace
+        sqlSessionFactoryBean.setTypeAliasesPackage(mybatisProperties.getTypeAliasesPackage());
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         try {
             //设置xml扫描路径
-            sqlSessionFactoryBean.setMapperLocations(resolver.getResources("classpath:mapper/*.xml"));
+            sqlSessionFactoryBean.setMapperLocations(resolver.getResources("classpath:mapper/*Mapper.xml"));
             return sqlSessionFactoryBean.getObject();
         } catch (Exception e) {
             throw new RuntimeException("sqlSessionFactory init fail",e);

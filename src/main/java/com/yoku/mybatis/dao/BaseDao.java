@@ -5,6 +5,7 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.support.SqlSessionDaoSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,14 @@ import java.util.Map;
  */
 public abstract class BaseDao<T> extends SqlSessionDaoSupport {
 
+
+    private final String nameSpace;
+
+    public BaseDao() {
+        nameSpace = ((Class<T>) ((ParameterizedType) getClass().getGenericSuperclass())
+                .getActualTypeArguments()[0]).getSimpleName();
+    }
+
     //1.2.0以上mybatis-spring将SqlSessionDaoSupport中SqlSessionTemplate移除需手动注入
     //否者启动报错: Property 'sqlSessionFactory' or 'sqlSessionTemplate' are required
     @Autowired
@@ -24,24 +33,28 @@ public abstract class BaseDao<T> extends SqlSessionDaoSupport {
     }
 
     public T load(Long id){
-        return getSqlSession().selectOne("load", id);
+        return getSqlSession().selectOne(getSql("load"), id);
     }
 
     public Boolean create(T t){
-        return getSqlSession().insert("create", t) == 1;
+        return getSqlSession().insert(getSql("create"), t) == 1;
     }
 
     public PageData<T> page(int pageNo, int pageSize, Map<String, Object> map){
         pageNo = pageNo >0 ? pageNo : 1;
         pageSize = pageSize > 0 ? pageSize : 20;
         int startIndex = (pageNo - 1) * pageSize;
-        long total = getSqlSession().selectOne("count", map);
+        long total = getSqlSession().selectOne(getSql("count"), map);
         if (total <= 0){
             return new PageData<T>(0, new ArrayList<T>(0));
         }
         map.put("startIndex", startIndex);
         map.put("pageSize", pageSize);
-        List<T> datas = getSqlSession().selectList("page", map);
+        List<T> datas = getSqlSession().selectList(getSql("page"), map);
         return new PageData<T>(total, datas);
+    }
+
+    protected String getSql(String sql){
+        return nameSpace + "." + sql;
     }
 }

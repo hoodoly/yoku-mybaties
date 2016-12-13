@@ -16,6 +16,15 @@ public class MybatisProperties {
     private Integer maxActive = 20;
     private Integer minIdle = 1;
     private Integer initialSize = 5;
+    private String typeAliasesPackage;
+
+    public String getTypeAliasesPackage() {
+        return typeAliasesPackage;
+    }
+
+    public void setTypeAliasesPackage(String typeAliasesPackage) {
+        this.typeAliasesPackage = typeAliasesPackage;
+    }
 
     public String getUsername() {
         return username;
