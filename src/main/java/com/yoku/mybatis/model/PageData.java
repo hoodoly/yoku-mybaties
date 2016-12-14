@@ -27,7 +27,6 @@ public class PageData<T> implements Serializable {
     }
 
     public List<T> getData() {
-
         return data;
     }
 
